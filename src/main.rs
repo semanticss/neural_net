@@ -1,4 +1,4 @@
-mod lin_alg_library;
+mod lin_alg;
 
 fn main() {
     println!("Hello, world!");
