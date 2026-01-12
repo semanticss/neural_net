@@ -65,7 +65,7 @@ impl Matrix {
         }
     }
 
-    pub fn add_matrices(&self, a: Matrix) -> Result<Matrix, String> {
+    pub fn add_matrices(&self, a: &Matrix) -> Result<Matrix, String> {
         if self.rows != a.rows {
             return Err("incompatible matrices".to_string());
         }
@@ -166,7 +166,7 @@ impl Matrix {
         return self.data.iter().step_by(self.rows).map(|x| *x).collect();
     }
 
-    pub fn subtract_matrices(&self, a: Matrix) -> Result<Matrix, String> {
+    pub fn subtract_matrices(&self, a: &Matrix) -> Result<Matrix, String> {
         if self.rows != a.rows {
             return Err("incompatible dimensions".to_string());
         }
@@ -184,7 +184,7 @@ impl Matrix {
         });
     }
 
-    pub fn multiply_matrices(&self, a: Matrix) -> Result<Matrix, String> {
+    pub fn multiply_matrices(&self, a: &Matrix) -> Result<Matrix, String> {
         if self.columns != a.rows {
             return Err("incompatible dimensions".to_string());
         }
@@ -249,6 +249,25 @@ mod tests {
     }
 
     #[test]
+    fn test_feed_forward() {
+        let inputs = matrix![1., 1., 1.];
+
+        let weights = matrix! [
+            0.5, -0.25;
+            0.7, 0.1;
+            -0.2, 0.1
+        ];
+
+        let bias = matrix![0.1, -0.2];
+
+        let weighted_sum = inputs
+            .multiply_matrices(&weights)
+            .unwrap()
+            .add_matrices(&bias)
+            .unwrap();
+    }
+
+    #[test]
     fn test_guassian_elimination() {
         let mut m: Matrix = matrix! [
             1., 2.;
@@ -309,7 +328,7 @@ mod tests {
             3., 4.
         ];
 
-        let m3 = m1.add_matrices(m2).unwrap();
+        let m3 = m1.add_matrices(&m2).unwrap();
 
         assert!(m3 == matrix![2., 4., 6., 8.])
     }
@@ -326,7 +345,7 @@ mod tests {
             7., 8.
         ];
 
-        let m3 = m1.subtract_matrices(m2).unwrap();
+        let m3 = m1.subtract_matrices(&m2).unwrap();
 
         assert!(m3 == matrix![-4., -4., -4., -4.]);
     }
@@ -343,7 +362,7 @@ mod tests {
             7., 8.
         ];
 
-        let m3: Matrix = m1.multiply_matrices(m2).unwrap();
+        let m3: Matrix = m1.multiply_matrices(&m2).unwrap();
 
         assert!(m3 == matrix![19., 22., 43., 50.]);
     }
@@ -360,7 +379,7 @@ mod tests {
             7., 8., 53.
         ];
 
-        let m3: Matrix = m1.multiply_matrices(m2).unwrap();
+        let m3: Matrix = m1.multiply_matrices(&m2).unwrap();
     }
 
     #[test]
