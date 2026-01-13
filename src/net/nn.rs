@@ -29,4 +29,39 @@ impl NeuralNet {
             learning_rate,
         }
     }
+
+    pub fn feed_forward(&mut self, inputs: Matrix) -> Matrix {
+        assert!(
+            self.layers[0] == inputs.data.len(),
+            "incompatible number of inputs"
+        );
+
+        let mut current: Matrix = inputs;
+
+        self.data = vec![current.clone()];
+
+        for i in 0..self.layers.len() - 1 {
+            current = self.weights[i]
+                .multiply_matrices(&current)
+                .unwrap()
+                .add_matrices(&self.biases[i])
+                .unwrap()
+                .map(self.activation);
+
+            self.data.push(current.clone()); // impl #[derive(Copy)]
+        }
+        current
+    }
+
+    pub fn back_propogate(&mut self, inputs: Matrix, targets: Matrix) {
+
+        let mut errors = targets.subtract_matrices(&inputs).unwrap();
+
+        let mut gradients = inputs.clone().map(fn: self.activation.derivative);
+
+        for i in (0..self.layers.len() - 1).rev() {
+
+            // ...
+        }
+    }
 }

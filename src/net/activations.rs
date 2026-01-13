@@ -6,8 +6,8 @@ pub enum ActivationType {
 }
 
 pub struct Activation {
-    function: fn(&f64) -> f64,
-    derivative: fn(&f64) -> f64,
+    pub function: fn(&f64) -> f64,
+    pub derivative: fn(&f64) -> f64,
 }
 
 const SIGMOID: Activation = Activation {

@@ -2,9 +2,9 @@ use rand::prelude::*;
 use std::fmt;
 
 pub struct Matrix {
-    rows: usize,
-    columns: usize,
-    data: Vec<f64>,
+    pub rows: usize,
+    pub columns: usize,
+    pub data: Vec<f64>,
 }
 
 // m[(x,y)]
@@ -64,6 +64,8 @@ impl Matrix {
                 .collect(),
         }
     }
+
+    // pub fn elementwise multiplication
 
     pub fn add_matrices(&self, a: &Matrix) -> Result<Matrix, String> {
         if self.rows != a.rows {
