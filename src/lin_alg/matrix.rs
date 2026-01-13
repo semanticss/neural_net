@@ -1,6 +1,7 @@
 use rand::prelude::*;
 use std::fmt;
 
+#[derive(Clone)]
 pub struct Matrix {
     pub rows: usize,
     pub columns: usize,
@@ -15,6 +16,14 @@ impl std::ops::Index<(usize, usize)> for Matrix {
         let row = index.0;
         let column = index.1;
         return &self.data[row * self.columns + column];
+    }
+}
+
+impl From<Vec<f64>> for Matrix {
+    fn from(vector) -> Self {
+        Matrix {
+            
+        }
     }
 }
 
@@ -54,6 +63,34 @@ impl Matrix {
         }
     }
 
+    pub fn map(&self, f: fn(&f64) -> f64) -> Matrix {
+        let result = self.data.iter().map(f).collect();
+
+        Matrix {
+            rows: self.rows,
+            columns: self.columns,
+            data: result,
+        }
+    }
+
+    pub fn transpose(&self) -> Matrix {
+        let mut result = vec![0.; self.data.len()];
+
+        for i in 0..self.rows {
+            for j in 0..self.columns {
+                let old_idx = r * self.columns + c;
+                let new_idx = c * self.rows + r;
+
+                result[new_idx] = self.data[old_idx]
+            }
+        }
+
+        Matrix {
+            rows: self.columns,
+            columns: self.rows,
+            data: result,
+        }
+    }
     pub fn new_random(rows: usize, columns: usize) -> Self {
         let mut rng = rand::rng();
         Self {
@@ -65,13 +102,30 @@ impl Matrix {
         }
     }
 
-    // pub fn elementwise multiplication
+    pub fn elementwise_multiplication(&self, a: &Matrix) -> Result<Matrix, String> {
+        if self.rows != a.rows {
+            return Err("incompatible matrices".to_string());
+        }
+
+        let mut result = Vec::with_capacity(self.data.len());
+
+        for i in 0..self.data.len() {
+            let f = self.data[i] * a.data[i];
+            result.push(f);
+        }
+
+        Ok(Matrix {
+            rows: self.rows,
+            columns: self.columns,
+            data: result,
+        })
+    }
 
     pub fn add_matrices(&self, a: &Matrix) -> Result<Matrix, String> {
         if self.rows != a.rows {
             return Err("incompatible matrices".to_string());
         }
-        let mut result = Vec::with_capacity(self.rows * self.columns);
+        let mut result = Vec::with_capacity(self.data.len());
 
         for i in 0..self.data.len() {
             let f = self.data[i] + a.data[i];
@@ -239,6 +293,15 @@ macro_rules! matrix {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_elementwise_multiplication() {
+        let m1: Matrix = matrix![1., 2., 3., 4.];
+        let m2: Matrix = matrix![1., 2., 3., 4.];
+
+        let m3 = m1.elementwise_multiplication(&m2).unwrap();
+        println!("{}", m3);
+    }
 
     #[test]
     fn test_determinant_by_guassian() {

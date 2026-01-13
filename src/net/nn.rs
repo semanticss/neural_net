@@ -46,22 +46,48 @@ impl NeuralNet {
                 .unwrap()
                 .add_matrices(&self.biases[i])
                 .unwrap()
-                .map(self.activation);
+                .map(self.activation.function);
 
-            self.data.push(current.clone()); // impl #[derive(Copy)]
+            self.data.push(current.clone());
         }
         current
     }
 
     pub fn back_propogate(&mut self, inputs: Matrix, targets: Matrix) {
-
         let mut errors = targets.subtract_matrices(&inputs).unwrap();
 
-        let mut gradients = inputs.clone().map(fn: self.activation.derivative);
+        let mut gradients = inputs.clone().map(self.activation.derivative);
 
         for i in (0..self.layers.len() - 1).rev() {
+            gradients = gradients
+                .elementwise_multiplication(&errors)
+                .unwrap()
+                .map(|x| x * 0.5);
 
-            // ...
+            self.weights[i] = self.weights[i]
+                .add_matrices(
+                    &gradients
+                        .multiply_matrices(&self.data[i].transpose())
+                        .unwrap(),
+                )
+                .unwrap();
+
+            self.biases[i] = self.biases[i].add_matrices(&gradients).unwrap();
+
+            errors = self.weights[i]
+                .transpose()
+                .multiply_matrices(&errors)
+                .unwrap();
+
+            gradients = self.data[i].map(self.activation.derivative);
+        }
+    }
+
+    pub fn train(&mut self, inputs: Vec<Vec<f64>>, targets: Vec<Vec<f64>>, epochs: usize) {
+        for i in 0..epochs {
+            for j in 0..inputs.len() {
+                let outputs = self.feed_forward(Matrix::from(inputs[j].clone()));
+            }
         }
     }
 }
